@@ -35,33 +35,31 @@ A multi-page React application demonstrating client-side routing, modular state 
  │   └─ main.jsx                 # React root and BrowserRouter wrapper
  ├─ index.html
  └─ package.json
+##  Architectural Reasoning (Section 10)
 
-
-
-## Reasoning Questions (Section 10)
+---
 
 ### 1. State Choices
-- **Signed-in user (`AuthContext` + `useReducer`):** Kept in Context because authentication status is global application metadata that changes infrequently (only on login/logout), making broad Context distribution optimal.
-- **Cart (`cartStore.js` with Zustand):** Managed in an external Zustand store because cart actions occur frequently across many components; Zustand prevents excessive tree re-renders via fine-grained selectors.
-- **Filter values (`useSearchParams`):** Stored in the URL search query string so that active searches and categories are bookmarkable, shareable via link, and preserved on refresh.
-- **Product list (`useFetch`):** Kept as local component state driven by an async lifecycle hook since it represents fetched server data relevant only to the product view.
-- **Theme (`useLocalStorage`):** Kept in local component/hook state synced with `localStorage` so user aesthetic preferences persist across browser sessions.
+
+| State Slice | Location / Implementation | Architectural Justification |
+| :--- | :--- | :--- |
+| **Signed-in user** | `AuthContext` + `useReducer` | Global authentication metadata changes infrequently (only on login/logout), making broad Context propagation optimal without perf penalties. |
+| **Shopping cart** | `cartStore.js` (Zustand) | High-frequency shared state (adding items, mutating quantities) requiring isolated component subscriptions via selectors to prevent full-tree re-renders. |
+| **Filter values** | URL (`useSearchParams`) | Storing queries in the URL enables shareable deep links, browser history navigation (back/forward), and state persistence across page refreshes. |
+| **Product list** | `useFetch` (Local Hook State) | Server data lifecycle (loading, data, error) that is tied strictly to the component displaying the catalogue. |
+| **Theme** | `useLocalStorage` | Client UI preference that must be read immediately on initial mount and safely persisted across sessions. |
+
+---
 
 ### 2. Context versus Store
-The user session is in Context because login/logout triggers rare, application-wide updates where re-rendering the app shell is expected. In contrast, the cart changes frequently (quantities, item additions, removals); placing the cart in standard Context would trigger re-renders across all consumer components on every small quantity change. Zustand allows individual components (like the NavBar item counter) to subscribe only to specific slices of state.
 
-### 3. Custom Hooks
-`useFetch` shares the asynchronous loading logic, state transition machine (`useReducer`), and cleanup/cancellation mechanisms (`AbortController`) between `ProductList` and `ProductDetail`. It deliberately does *not* share the cached data itself; each component maintains an independent state instance for its own query lifecycle.
+* **User session in Context:** Login/logout events are rare and impact the shell of the entire application. When a user authenticates or signs out, re-rendering layout navigation and protected routes is expected.
+* **Cart in Zustand:** If the cart were placed in Context, every minor state transition (e.g., clicking `+` to increment an item quantity) would trigger a re-render across all components consuming that Context—including the catalogue grid and wrappers. 
+* **Granular Selectors:** Zustand allows consumers like the `NavBar` cart badge to subscribe strictly to a primitive derived count:
+  ```javascript
+  const totalCount = useCartStore((state) =>
+    state.items.reduce((sum, item) => sum + item.quantity, 0)
+  );
 
-### 4. Route Parameters
-The `id` parameter read from `useParams()` is always a `string`. This matters when fetching or comparing against API data where IDs might be numbers, requiring explicit type conversion or string-safe matching.
 
-### 5. Protected Routes
-Client-side protection in `ProtectedRoute` is purely a user-experience mechanism that hides or redirects UI views in the browser; it is not security because all client-side JavaScript code can be inspected, manipulated, or bypassed. Real security requires backend enforcement where API endpoints validate credentials, session cookies, or JWT tokens on every protected request.
 
-### 6. Deep Links
-On a plain static file server, refreshing a client-side route like `/products/3` causes the server to search for a physical file named `/products/3/index.html`, resulting in a 404 HTTP error. On the Vite development server, an SPA fallback rewrite rule redirects all non-file GET requests back to `/index.html`, allowing React Router to read the browser URL path and render the matched route on the client.
-
-## Self-Study Notes
-- **Query Parameter Preservation:** Used `URLSearchParams` instances within `updateParam` to selectively modify or delete specific keys without wiping existing search or filter parameters.
-- **Safe Store Initialization:** Wrapped `localStorage.getItem` reads inside `try...catch` blocks to guard against corrupted or invalid JSON payloads.
