@@ -1,35 +1,42 @@
-# Assignment 7 - Online Shop
+#  Online Shop — Assignment 7
 
-## Project Structure 
+A multi-page React application demonstrating client-side routing, modular state management, custom hooks, and offline persistence.
 
+---
+
+## 📁 Project Structure
+
+```text
 /assignment7
-├─ src/
-│   ├─ api/
-│   │   ├─ productsApi.js
-│   │   └─ authApi.js
-│   ├─ hooks/
-│   │   ├─ useFetch.js
-│   │   └─ useLocalStorage.js
-│   ├─ context/
-│   │   └─ AuthContext.jsx
-│   ├─ store/
-│   │   └─ cartStore.js
-│   ├─ components/
-│   │   ├─ Layout.jsx
-│   │   ├─ NavBar.jsx
-│   │   ├─ ProductCard.jsx
-│   │   └─ ProtectedRoute.jsx
-│   ├─ pages/
-│   │   ├─ Home.jsx
-│   │   ├─ ProductList.jsx
-│   │   ├─ ProductDetail.jsx
-│   │   ├─ Cart.jsx
-│   │   ├─ Login.jsx
-│   │   └─ NotFound.jsx
-│   ├─ App.jsx
-│   └─ main.jsx
-├─ index.html
-└─ package.json
+ ├─ src/
+ │   ├─ api/
+ │   │   ├─ productsApi.js       # Native fetch calls with AbortSignal support
+ │   │   └─ authApi.js           # Mock authentication with simulated network delay
+ │   ├─ hooks/
+ │   │   ├─ useFetch.js          # Async data fetching state machine via useReducer
+ │   │   └─ useLocalStorage.js   # Local storage synchronization hook
+ │   ├─ context/
+ │   │   └─ AuthContext.jsx      # Global authentication provider and safe useAuth hook
+ │   ├─ store/
+ │   │   └─ cartStore.js         # Zustand store with out-of-React persistence
+ │   ├─ components/
+ │   │   ├─ Layout.jsx           # App shell with dynamic theme styling and Outlet
+ │   │   ├─ NavBar.jsx           # NavLink routing, cart badge, and theme switch
+ │   │   ├─ ProductCard.jsx      # Individual product preview component
+ │   │   └─ ProtectedRoute.jsx   # UX redirect guard for authenticated views
+ │   ├─ pages/
+ │   │   ├─ Home.jsx             # Landing view
+ │   │   ├─ ProductList.jsx      # Product catalogue with URL-driven filtering
+ │   │   ├─ ProductDetail.jsx    # Single product view reading URL params
+ │   │   ├─ Cart.jsx             # Shopping cart with total calculations
+ │   │   ├─ Login.jsx            # Controlled credentials form with redirect history
+ │   │   └─ NotFound.jsx         # Catch-all 404 page
+ │   ├─ App.jsx                  # Route definitions and nested route hierarchy
+ │   └─ main.jsx                 # React root and BrowserRouter wrapper
+ ├─ index.html
+ └─ package.json
+
+
 
 ## Reasoning Questions (Section 10)
 
