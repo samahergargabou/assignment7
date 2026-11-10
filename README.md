@@ -3,6 +3,15 @@ A React application built with Vite, React Router, Zustand, and Context API.
 
 Project Structure
 
+# Online Shop - Assignment 7
+
+A React application built with Vite, React Router, Zustand, and Context API.
+
+---
+
+## Project Structure
+
+```text
 /assignment7
  ├─ src/
  │   ├─ api/
@@ -31,8 +40,6 @@ Project Structure
  │   └─ main.jsx
  ├─ index.html
  └─ package.json
-
-
 
 
  Architectural Reasoning (Section 10)
